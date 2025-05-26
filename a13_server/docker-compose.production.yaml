@@ -85,25 +85,25 @@ services:
     labels:
       - "traefik.enable=true"
       # API маршруты для app2
-      - "traefik.http.routers.api2.rule=Host(`api2.my-points.ru`)"
-      - "traefik.http.routers.api2.entrypoints=websecure"
-      - "traefik.http.routers.api2.service=api2-service"
-      - "traefik.http.routers.api2.tls.certresolver=myresolver"
-      - "traefik.http.services.api2-service.loadbalancer.server.port=8080"
+      - "traefik.http.routers.api.rule=Host(`api2.my-points.ru`)"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.service=api-service"
+      - "traefik.http.routers.api.tls.certresolver=myresolver"
+      - "traefik.http.services.api-service.loadbalancer.server.port=8080"
 
       # Insights маршруты для app2
-      - "traefik.http.routers.insights2.rule=Host(`insights2.my-points.ru`)"
-      - "traefik.http.routers.insights2.entrypoints=websecure"
-      - "traefik.http.routers.insights2.service=insights2-service"
-      - "traefik.http.routers.insights2.tls.certresolver=myresolver"
-      - "traefik.http.services.insights2-service.loadbalancer.server.port=8081"
+      - "traefik.http.routers.insights.rule=Host(`insights2.my-points.ru`)"
+      - "traefik.http.routers.insights.entrypoints=websecure"
+      - "traefik.http.routers.insights.service=insights-service"
+      - "traefik.http.routers.insights.tls.certresolver=myresolver"
+      - "traefik.http.services.insights-service.loadbalancer.server.port=8081"
 
       # Web маршруты для app2
-      - "traefik.http.routers.web2.rule=Host(`web2.my-points.ru`)"
-      - "traefik.http.routers.web2.entrypoints=websecure"
-      - "traefik.http.routers.web2.service=web2-service"
-      - "traefik.http.routers.web2.tls.certresolver=myresolver"
-      - "traefik.http.services.web2-service.loadbalancer.server.port=8082"
+      - "traefik.http.routers.web.rule=Host(`web2.my-points.ru`)"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.routers.web.service=web-service"
+      - "traefik.http.routers.web.tls.certresolver=myresolver"
+      - "traefik.http.services.web-service.loadbalancer.server.port=8082"
     depends_on:
       postgres:
         condition: service_healthy
