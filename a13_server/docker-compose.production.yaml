@@ -11,8 +11,8 @@ services:
       - "--certificatesresolvers.myresolver.acme.email=frolprank@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
-      - "80:80"
-      - "443:443"
+      - "8090:80"   # Другие порты для избежания конфликтов
+      - "8443:443"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./letsencrypt:/letsencrypt"
@@ -20,7 +20,7 @@ services:
       - postgres
       - serverpod
     networks:
-      - serverpod-network
+      - serverpod2-network
 
   postgres:
     healthcheck:
@@ -34,40 +34,27 @@ services:
     labels:
       - "traefik.enable=false"
     ports:
-      - "127.0.0.1:5433:5432"  # Другой порт
+      - "127.0.0.1:5433:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - app2_data:/var/lib/postgresql/data  # Другой volume
+      - app2_data:/var/lib/postgresql/data
     networks:
       - serverpod2-network
 
-
   serverpod:
-    restart: on-failure
+    restart: unless-stopped
     image: ghcr.io/${GHCR_ORG}/a13_server:latest
     environment:
       SERVERPOD_DATABASE_PASSWORD: ${SERVERPOD_DATABASE_PASSWORD}
-      SERVERPOD_DATABASE_HOST: ${SERVERPOD_DATABASE_HOST}
+      SERVERPOD_DATABASE_HOST: postgres
       SERVERPOD_DATABASE_NAME: ${SERVERPOD_DATABASE_NAME}
       SERVERPOD_DATABASE_USER: ${SERVERPOD_DATABASE_USER}
-      SERVERPOD_DATABASE_PORT: ${SERVERPOD_DATABASE_PORT}
-      SERVERPOD_DATABASE_REQUIRE_SSL: ${SERVERPOD_DATABASE_REQUIRE_SSL}
-      SERVERPOD_DATABASE_IS_UNIX_SOCKET: ${SERVERPOD_DATABASE_IS_UNIX_SOCKET}
-      SERVERPOD_API_SERVER_PUBLIC_HOST: ${SERVERPOD_API_SERVER_PUBLIC_HOST}
-      SERVERPOD_API_SERVER_PUBLIC_PORT: ${SERVERPOD_API_SERVER_PUBLIC_PORT}
-      SERVERPOD_API_SERVER_PUBLIC_SCHEME: ${SERVERPOD_API_SERVER_PUBLIC_SCHEME}
-      SERVERPOD_API_SERVER_PORT: ${SERVERPOD_API_SERVER_PORT}
-      SERVERPOD_INSIGHTS_SERVER_PUBLIC_HOST: ${SERVERPOD_INSIGHTS_SERVER_PUBLIC_HOST}
-      SERVERPOD_INSIGHTS_SERVER_PUBLIC_PORT: ${SERVERPOD_INSIGHTS_SERVER_PUBLIC_PORT}
-      SERVERPOD_INSIGHTS_SERVER_PUBLIC_SCHEME: ${SERVERPOD_INSIGHTS_SERVER_PUBLIC_SCHEME}
-      SERVERPOD_INSIGHTS_SERVER_PORT: ${SERVERPOD_INSIGHTS_SERVER_PORT}
-      SERVERPOD_WEB_SERVER_PUBLIC_HOST: ${SERVERPOD_WEB_SERVER_PUBLIC_HOST}
-      SERVERPOD_WEB_SERVER_PUBLIC_PORT: ${SERVERPOD_WEB_SERVER_PUBLIC_PORT}
-      SERVERPOD_WEB_SERVER_PUBLIC_SCHEME: ${SERVERPOD_WEB_SERVER_PUBLIC_SCHEME}
-      SERVERPOD_WEB_SERVER_PORT: ${SERVERPOD_WEB_SERVER_PORT}
+      SERVERPOD_DATABASE_PORT: 5432
+      SERVERPOD_DATABASE_REQUIRE_SSL: false
+      SERVERPOD_DATABASE_IS_UNIX_SOCKET: false
       SERVERPOD_SERVICE_SECRET: ${SERVERPOD_SERVICE_SECRET}
       SERVERPOD_MAX_REQUEST_SIZE: ${SERVERPOD_MAX_REQUEST_SIZE}
     command:
@@ -85,35 +72,35 @@ services:
     labels:
       - "traefik.enable=true"
       # API маршруты для app2
-      - "traefik.http.routers.api.rule=Host(`api2.my-points.ru`)"
-      - "traefik.http.routers.api.entrypoints=websecure"
-      - "traefik.http.routers.api.service=api-service"
-      - "traefik.http.routers.api.tls.certresolver=myresolver"
-      - "traefik.http.services.api-service.loadbalancer.server.port=8080"
+      - "traefik.http.routers.api2.rule=Host(`api2.my-points.ru`)"
+      - "traefik.http.routers.api2.entrypoints=websecure"
+      - "traefik.http.routers.api2.service=api2-service"
+      - "traefik.http.routers.api2.tls.certresolver=myresolver"
+      - "traefik.http.services.api2-service.loadbalancer.server.port=8080"
 
       # Insights маршруты для app2
-      - "traefik.http.routers.insights.rule=Host(`insights2.my-points.ru`)"
-      - "traefik.http.routers.insights.entrypoints=websecure"
-      - "traefik.http.routers.insights.service=insights-service"
-      - "traefik.http.routers.insights.tls.certresolver=myresolver"
-      - "traefik.http.services.insights-service.loadbalancer.server.port=8081"
+      - "traefik.http.routers.insights2.rule=Host(`insights2.my-points.ru`)"
+      - "traefik.http.routers.insights2.entrypoints=websecure"
+      - "traefik.http.routers.insights2.service=insights2-service"
+      - "traefik.http.routers.insights2.tls.certresolver=myresolver"
+      - "traefik.http.services.insights2-service.loadbalancer.server.port=8081"
 
       # Web маршруты для app2
-      - "traefik.http.routers.web.rule=Host(`web2.my-points.ru`)"
-      - "traefik.http.routers.web.entrypoints=websecure"
-      - "traefik.http.routers.web.service=web-service"
-      - "traefik.http.routers.web.tls.certresolver=myresolver"
-      - "traefik.http.services.web-service.loadbalancer.server.port=8082"
+      - "traefik.http.routers.web2.rule=Host(`web2.my-points.ru`)"
+      - "traefik.http.routers.web2.entrypoints=websecure"
+      - "traefik.http.routers.web2.service=web2-service"
+      - "traefik.http.routers.web2.tls.certresolver=myresolver"
+      - "traefik.http.services.web2-service.loadbalancer.server.port=8082"
     depends_on:
       postgres:
         condition: service_healthy
     networks:
-      - serverpod-network
+      - serverpod2-network
 
 networks:
-  serverpod-network:
-    name: serverpod-network
+  serverpod2-network:
+    name: serverpod2-network
     driver: bridge
 
 volumes:
-  a13_data:
+  app2_data:
