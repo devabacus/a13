@@ -11,8 +11,8 @@ services:
       - "--certificatesresolvers.myresolver.acme.email=frolprank@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
-      - "8090:80"   # Другие порты для избежания конфликтов
-      - "8443:443"
+      - "8080:80"   # Другие порты для избежания конфликтов
+      - "443:443"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./letsencrypt:/letsencrypt"
